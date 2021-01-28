@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+        }
+        input {
+            outline: none;
+        }
+        .container {
+            width: 600px;
+            /* height: 400px; */
+            margin: 100px auto;
+            text-align: center;
+            font-size: 14px;
+            font-weight: bold;
+            position: relative;
+        }
+        canvas {
+            border: 1px solid blue;
+        }
+        .container input[type="number"] {
+            width: 50px;
+            margin: 10px 10px 0 0;
+        }
+        .bottomban{
+            position: absolute;
+            top: 380px;
+            transform: translateX(-50%);
+            font-size: 14px;
+        }
+        .botban{
+            position: absolute;
+            font-size: 14px;
+            color: blue;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <canvas width="600" height="400px"></canvas>
+        <p>
+            <span>参数1</span>:<input type="number" value="15" max="34" min="0" />
+            <span>参数2</span>:<input type="number" value="34" max="34" min="0" />
+            <span>参数3</span>:<input type="number" value="15" max="34" min="0" />
+            <span>参数4</span>:<input type="number" value="25" max="34" min="0" />
+            <span>参数5</span>:<input type="number" value="6" max="34" min="0" />
+        </p>
+    </div>
+
+    <script>
+        window.onload = function () {
+            var container=document.querySelector(".container");
+            var canvas = document.querySelector("canvas");
+            var ctx = canvas.getContext("2d");
+            var blocksize = 10;
+            var boxW = canvas.width;
+            var boxH = canvas.height;
+            var num_h = boxW / blocksize;
+            var num_v = boxH / blocksize;
+            var data = [15, 25, 30, 34, 10];
+            
+            //画图方法
+            function initCanvas() {
+                //获取数据
+                var data = [];
+                var inputs = document.querySelectorAll(".container input[type='number']");
+                for (var j = 0; j < inputs.length; j++) {
+                    data.push(parseInt(inputs[j].value));
+                    inputs[j].onchange = function () {
+                        initCanvas();
+                    };
+
+                    //添加下标
+                    var span=document.createElement("span");
+                    span.classList.add("bottomban");
+                    span.textContent=inputs[j].previousElementSibling.textContent;
+                    container.appendChild(span);
+                    span.style.left=((j+1)*10+2)*blocksize+"px";
+                }
+
+                //清空画布原有内容
+                canvas.width  = canvas.width;
+                //清空原有数据提示下标
+                var botbans=document.querySelectorAll(".botban");
+                for(var k =0;k<botbans.length;k++){
+                    botbans[k].remove();
+                }
+
+                //画网格
+                ctx.beginPath();
+                for (var i = 1; i < num_h; i++) {
+                    ctx.moveTo(blocksize * i + 0.5, 0);
+                    ctx.lineTo(blocksize * i + 0.5, boxH);
+                }
+                for (var i = 1; i < num_v; i++) {
+                    ctx.moveTo(0, blocksize * i + 0.5);
+                    ctx.lineTo(boxW, blocksize * i + 0.5);
+                }
+                ctx.strokeStyle = "#F3F3F3"
+                ctx.stroke();
+
+                //画x轴y轴
+                ctx.beginPath();
+                ctx.moveTo(2 * blocksize, 2 * blocksize);
+                ctx.lineTo(2 * blocksize, boxH - 2 * blocksize);
+                ctx.lineTo(boxW - 2 * blocksize, boxH - 2 * blocksize);
+                ctx.strokeStyle = "#000"
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(2 * blocksize, 2 * blocksize);
+                ctx.lineTo(1.5 * blocksize, 3 * blocksize);
+                ctx.lineTo(2.5 * blocksize, 3 * blocksize);
+                ctx.closePath();
+                ctx.fill();
+                ctx.beginPath();
+                ctx.moveTo(boxW - 2 * blocksize, boxH - 2 * blocksize);
+                ctx.lineTo(boxW - 3 * blocksize, boxH - 1.5 * blocksize);
+                ctx.lineTo(boxW - 3 * blocksize, boxH - 2.5 * blocksize);
+                ctx.closePath();
+                ctx.fill();
+
+                //画点
+                data.forEach(function (val, index) {
+                    ctx.beginPath();
+                    ctx.moveTo(((index + 1) * 10 - 0.5 + 2) * blocksize, boxH - (val - 0.5 + 2) * blocksize);
+                    ctx.lineTo(((index + 1) * 10 + 0.5 + 2) * blocksize, boxH - (val - 0.5 + 2) * blocksize);
+                    ctx.lineTo(((index + 1) * 10 + 0.5 + 2) * blocksize, boxH - (val + 0.5 + 2) * blocksize);
+                    ctx.lineTo(((index + 1) * 10 - 0.5 + 2) * blocksize, boxH - (val + 0.5 + 2) * blocksize);
+                    ctx.closePath();
+                    ctx.fill();
+                })
+                //画线
+                ctx.beginPath();
+                ctx.moveTo(2 * blocksize, boxH - 2 * blocksize);
+                data.forEach(function (val, index) {
+                    ctx.lineTo(((index + 1) * 10 + 2) * blocksize, boxH - (val + 2) * blocksize);
+
+                    //添加数据提示下标
+                    var span=document.createElement("span");
+                    span.classList.add("botban");
+                    span.textContent=val;
+                    container.appendChild(span);
+                    span.style.left=((index + 1) * 10 + 2+0.5) * blocksize+"px";
+                    span.style.top=boxH - (val + 2-0.5) * blocksize+"px";
+                })
+                ctx.stroke();
+            }
+            initCanvas();
+        }
+    </script>
+</body>
+</html>
